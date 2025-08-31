@@ -1,30 +1,42 @@
+/* ====== Base & iPhone-safe defaults ====== */
 html, body, #root {
   margin: 0;
   padding: 0;
   height: 100%;
-  min-height: 800vh;  /* ensure full viewport height */
-    font-family: 'Orbitron', sans-serif;
+  min-height: 100vh;                 /* was 800vh — caused giant page on phones */
+  font-family: 'Orbitron', sans-serif;
   background-color: #695353;
   color: #fff;
   display: flex;
   flex-direction: column;
+  -webkit-text-size-adjust: 100%;    /* stop iOS auto-zooming text */
+}
+
+body {
+  padding-bottom: env(safe-area-inset-bottom); /* respect iPhone home-indicator area */
+}
+
+/* keep form controls >=16px so iOS won’t zoom on focus */
+input, select, textarea, button { font-size: 16px; }
+
+/* small fluid scales we can reuse */
+:root{
+  --gap: clamp(8px, 2.5vw, 20px);
+  --card-radius: clamp(12px, 2.2vw, 16px);
 }
 
 /* ====== App Container ====== */
-
 .tempo-app {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 20px;
+  gap: var(--gap);
   padding: 40px;
   box-sizing: border-box;
   max-width: 1600px;
-  
   margin: 0 auto;
 }
 
 /* ====== Responsive Breakpoints ====== */
-
 @media (max-width: 1024px) {
   .tempo-app {
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -39,38 +51,60 @@ html, body, #root {
   }
 }
 
-/* ====== Optional: Card Styling for Each Box ====== */
-
+/* ====== Cards ====== */
 .card {
   background-color: #3e2b2b;
-  border-radius: 16px;
+  border-radius: var(--card-radius);
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
   padding: 20px;
   transition: transform 0.2s ease;
 }
+.card:hover { transform: scale(1.01); }
 
-.card:hover {
-  transform: scale(1.01);
-}
+.read-the-docs { color: #888; }
 
-/* ====== You can still keep this if needed ====== */
-.read-the-docs {
-  color: #888;
-}
-
-
+/* ====== Calendar Layout ====== */
 .calendar-wrapper {
   display: flex;
   justify-content: center;
   align-items: stretch;
   gap: 0;
   margin-top: 10px;
-  margin-left: -400px;;
+
+  /* remove the desktop-only shift that breaks phones */
+  margin-left: 0;
+  max-width: 100vw;
+  overflow-x: hidden;
   position: relative;
- 
 }
 
+/* if you really need the left shift on big screens, do it only there */
+@media (min-width: 1280px) {
+  .calendar-wrapper { margin-left: -200px; } /* adjust or remove as you like */
+}
 
+/* row that docks the weather card to the right of the calendar */
+.calendar-container {
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  gap: 0;
+}
+
+/* stack nicely on phones (calendar above, weather below) */
+@media (max-width: 1024px) {
+  .calendar-container {
+    flex-direction: column;
+    gap: var(--gap);
+  }
+}
+
+/* weather card: remove bad margin + let it breathe on phones */
+.weather-sidebar {
+  margin-top: 0 !important; /* was `3` with no unit */
+}
+
+/* ====== Aiiden (voice) button ====== */
 .aiiden-trigger-btn {
   position: fixed;
   bottom: 24px;
@@ -91,9 +125,8 @@ html, body, #root {
     0 4px 12px rgba(0, 0, 0, 0.3);
   cursor: pointer;
   transition: all 0.3s ease;
-    font-family: 'Orbitron', sans-serif;
+  font-family: 'Orbitron', sans-serif;
 }
-
 .aiiden-trigger-btn:hover {
   background: rgba(255, 255, 255, 0.15);
   box-shadow:
@@ -101,48 +134,31 @@ html, body, #root {
     0 6px 16px rgba(0, 0, 0, 0.4);
   transform: translateY(-1px) scale(1.03);
 }
-
-
 .aiiden-trigger-btn i {
   font-size: 20px;
   color: #ffffff;
   transition: color 0.3s ease, transform 0.3s ease, text-shadow 0.3s ease;
   text-shadow: 0 0 4px rgba(255, 255, 255, 0.6);
 }
-
 .aiiden-trigger-btn:hover i {
   color: #00ffc2;
   transform: scale(1.1);
   text-shadow: 0 0 6px rgba(0, 255, 194, 0.8), 0 0 10px rgba(0, 255, 194, 0.6);
 }
-
-/* Optional: animated glow when Aiiden is active */
 .aiiden-active i {
   color: #00ffc2;
   animation: mic-glow 1.2s infinite ease-in-out;
 }
-
 @keyframes mic-glow {
-  0% {
-    text-shadow: 0 0 5px rgba(0, 255, 194, 0.5);
-  }
-  50% {
-    text-shadow: 0 0 10px rgba(0, 255, 194, 0.9), 0 0 20px rgba(0, 255, 194, 0.6);
-  }
-  100% {
-    text-shadow: 0 0 5px rgba(0, 255, 194, 0.5);
-  }
+  0%   { text-shadow: 0 0 5px rgba(0, 255, 194, 0.5); }
+  50%  { text-shadow: 0 0 10px rgba(0, 255, 194, 0.9), 0 0 20px rgba(0, 255, 194, 0.6); }
+  100% { text-shadow: 0 0 5px rgba(0, 255, 194, 0.5); }
 }
 
-/* Row that docks the weather card to the right of the calendar */
-.calendar-container {
-  display: flex;
-  justify-content: center;
-  align-items: stretch; /* ensures equal vertical alignment */
-  gap: 0px; /* spacing between calendar and weather */
-}
-
-/* remove the hard margin from the weather card */
-.weather-sidebar {
-  margin-top: 3 !important;
+/* ====== Plans panel on small screens ====== */
+@media (max-width: 600px) {
+  .plans-panel {
+    left: 12px; right: 12px; top: 16px; bottom: 16px;
+    width: auto;                /* instead of any fixed width */
+  }
 }

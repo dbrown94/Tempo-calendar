@@ -1,5 +1,5 @@
 // components/Goals/scheduler.ts
-import type { Goal, Constraints, PlannedBlock, Task, Milestone } from "./types";
+import type { Goal, Constraints, PlannedBlock, Task } from "./types";
 
 const pad = (n: number) => String(n).padStart(2, "0");
 const dateKey = (d: Date) => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
