@@ -64,6 +64,7 @@ func main() {
 	_ = godotenv.Load()
 
 	var err error
+	// NOTE: systemd WorkingDirectory should be /var/lib/tempo so this file lives there.
 	db, err = sql.Open("sqlite3", "tempo_push.db?_busy_timeout=5000")
 	if err != nil {
 		log.Fatal(err)
@@ -90,6 +91,23 @@ func main() {
 	r.Use(middleware.Recoverer)
 	r.Use(cors)
 
+	// --- health & ready ---
+	r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"ok":true}`))
+	})
+	r.Get("/ready", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		if err := db.PingContext(r.Context()); err != nil {
+			http.Error(w, `{"ok":false,"err":"db"}`, http.StatusServiceUnavailable)
+			return
+		}
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"ok":true}`))
+	})
+
+	// API
 	r.Post("/api/push/subscribe", handleSubscribe)
 	r.Post("/api/push/test", handleTestPush)
 	r.Post("/api/tasks/log", handleLogTask)
@@ -98,19 +116,23 @@ func main() {
 	log.Fatal(http.ListenAndServe(":8080", r))
 }
 
+// CORS: allow your frontend origin (adjust as needed)
 func cors(next http.Handler) http.Handler {
+	allowed := map[string]bool{
+		"https://www.tempo-os.com": true,
+		// "http://localhost:5173":   true, // handy for local dev if needed
+	}
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		origin := r.Header.Get("Origin")
-		if origin == "" {
-			origin = "*"
+		if allowed[origin] {
+			w.Header().Set("Access-Control-Allow-Origin", origin)
+			w.Header().Set("Vary", "Origin")
+			w.Header().Set("Access-Control-Allow-Credentials", "true")
 		}
-		w.Header().Set("Access-Control-Allow-Origin", origin)
-		w.Header().Set("Vary", "Origin")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
 		w.Header().Set("Access-Control-Allow-Methods", "GET,POST,OPTIONS")
-		w.Header().Set("Access-Control-Allow-Credentials", "true")
 		if r.Method == "OPTIONS" {
-			w.WriteHeader(200)
+			w.WriteHeader(http.StatusNoContent)
 			return
 		}
 		next.ServeHTTP(w, r)
@@ -120,20 +142,20 @@ func cors(next http.Handler) http.Handler {
 func initDB() error {
 	ddl := []string{
 		`CREATE TABLE IF NOT EXISTS push_subscriptions (
-			user_id   TEXT NOT NULL,
-			endpoint  TEXT PRIMARY KEY,
-			p256dh    TEXT NOT NULL,
-			auth      TEXT NOT NULL,
+			user_id    TEXT NOT NULL,
+			endpoint   TEXT PRIMARY KEY,
+			p256dh     TEXT NOT NULL,
+			auth       TEXT NOT NULL,
 			created_at TIMESTAMP NOT NULL
 		);`,
 		`CREATE TABLE IF NOT EXISTS tasks (
-			task_id TEXT PRIMARY KEY,
-			milestone_id TEXT,
-			goal_id TEXT,
-			title TEXT,
-			color TEXT,
+			task_id       TEXT PRIMARY KEY,
+			milestone_id  TEXT,
+			goal_id       TEXT,
+			title         TEXT,
+			color         TEXT,
 			estimate_mins INTEGER NOT NULL,
-			logged_mins INTEGER NOT NULL DEFAULT 0
+			logged_mins   INTEGER NOT NULL DEFAULT 0
 		);`,
 	}
 	for _, q := range ddl {
@@ -152,11 +174,11 @@ func handleSubscribe(w http.ResponseWriter, r *http.Request) {
 	}
 	var p payload
 	if err := json.NewDecoder(r.Body).Decode(&p); err != nil {
-		http.Error(w, err.Error(), 400)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 	if p.UserID == "" || p.Subscription.Endpoint == "" {
-		http.Error(w, "missing fields", 400)
+		http.Error(w, "missing fields", http.StatusBadRequest)
 		return
 	}
 
@@ -165,21 +187,21 @@ func handleSubscribe(w http.ResponseWriter, r *http.Request) {
 		VALUES (?, ?, ?, ?, ?)`,
 		p.UserID, p.Subscription.Endpoint, p.Subscription.Keys.P256dh, p.Subscription.Keys.Auth, time.Now())
 	if err != nil {
-		http.Error(w, err.Error(), 500)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	w.WriteHeader(204)
+	w.WriteHeader(http.StatusNoContent)
 }
 
 // ---------- Test push ----------
 func handleTestPush(w http.ResponseWriter, r *http.Request) {
 	var req testPushReq
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, err.Error(), 400)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 	if req.UserID == "" {
-		http.Error(w, "userId required", 400)
+		http.Error(w, "userId required", http.StatusBadRequest)
 		return
 	}
 
@@ -189,21 +211,21 @@ func handleTestPush(w http.ResponseWriter, r *http.Request) {
 		"kind":  "test",
 	})
 	if err != nil {
-		http.Error(w, err.Error(), 500)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	w.WriteHeader(204)
+	w.WriteHeader(http.StatusNoContent)
 }
 
 // ---------- Log minutes + milestone check ----------
 func handleLogTask(w http.ResponseWriter, r *http.Request) {
 	var req logTaskReq
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, err.Error(), 400)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 	if req.UserID == "" || req.TaskID == "" || req.DeltaMins <= 0 {
-		http.Error(w, "missing/invalid fields", 400)
+		http.Error(w, "missing/invalid fields", http.StatusBadRequest)
 		return
 	}
 
@@ -217,11 +239,11 @@ func handleLogTask(w http.ResponseWriter, r *http.Request) {
 		SET logged_mins = MIN(estimate_mins, logged_mins + ?)
 		WHERE task_id = ?`, req.DeltaMins, req.TaskID)
 	if err != nil {
-		http.Error(w, err.Error(), 500)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 	if n, _ := res.RowsAffected(); n == 0 {
-		http.Error(w, "task not found", 404)
+		http.Error(w, "task not found", http.StatusNotFound)
 		return
 	}
 
@@ -230,7 +252,7 @@ func handleLogTask(w http.ResponseWriter, r *http.Request) {
 	var title string
 	if err := db.QueryRow(`SELECT title, estimate_mins, logged_mins FROM tasks WHERE task_id = ?`, req.TaskID).
 		Scan(&title, &est, &logged); err != nil {
-		http.Error(w, err.Error(), 500)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
@@ -248,7 +270,7 @@ func handleLogTask(w http.ResponseWriter, r *http.Request) {
 		_ = db.QueryRow(`SELECT COUNT(*) FROM tasks WHERE milestone_id = ? AND logged_mins < estimate_mins`, req.MilestoneID).Scan(&remaining)
 		if remaining == 0 {
 			_ = sendPushToUser(r.Context(), req.UserID, map[string]any{
-				"title":       "Milestone complete ",
+				"title":       "Milestone complete",
 				"body":        "You’ve completed all tasks for a milestone.",
 				"kind":        "milestone",
 				"milestoneId": req.MilestoneID,
@@ -257,7 +279,7 @@ func handleLogTask(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	w.WriteHeader(204)
+	w.WriteHeader(http.StatusNoContent)
 }
 
 func sendPushToUser(ctx context.Context, userID string, payload map[string]any) error {
@@ -283,9 +305,12 @@ func sendPushToUser(ctx context.Context, userID string, payload map[string]any) 
 		}
 
 		resp, err := webpush.SendNotification(msg, sub, webpushOpts)
-		if err != nil || (resp != nil && (resp.StatusCode == 404 || resp.StatusCode == 410)) {
+		if err != nil || (resp != nil && (resp.StatusCode == http.StatusNotFound || resp.StatusCode == http.StatusGone)) {
 			// delete dead subscription
 			_, _ = db.Exec(`DELETE FROM push_subscriptions WHERE endpoint = ?`, ep)
+			if resp != nil {
+				_ = resp.Body.Close()
+			}
 			continue
 		}
 		if resp != nil {
