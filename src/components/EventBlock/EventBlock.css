@@ -1,0 +1,125 @@
+.custom-tooltip {
+  position: absolute;
+  bottom: 110%;
+  left: 50%;
+  transform: translateX(-50%);
+  min-width: 180px;
+  background: rgba(0, 0, 0, 0.85);
+  color: #fff;
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  text-align: left;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  z-index: 10;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  white-space: normal;
+}
+
+.event-block:hover .custom-tooltip {
+  opacity: 1;
+}
+
+
+.journal-entry {
+  position: absolute;
+  top: 105%;
+  left: 0;
+  width: 280px;
+  height: 250px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(18px) saturate(180%);
+  -webkit-backdrop-filter: blur(18px) saturate(180%);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35), inset 0 0 0.5px rgba(255, 255, 255, 0.2);
+  font-family: 'Orbitron', sans-serif;
+  font-size: 13px;
+  color: white;
+  z-index: 10;
+  animation: fadeIn 0.3s ease forwards;
+}
+
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+  }
+}
+
+.journal-entry div {
+  margin-bottom: 6px;
+  line-height: 1.4;
+  color: #e0e0e0;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.journal-entry textarea {
+  width: 90%;
+  height: 60px;
+  margin-top: 8px;
+  padding: 10px;
+  resize: vertical;
+  background: rgba(255, 255, 255, 0.12);
+  color: white;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 13px;
+  border: none;
+  border-radius: 10px;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3);
+  position: relative;
+}
+
+.journal-entry button {
+  margin-top: 100px; /* pushes it to the bottom */
+  width: 80%;
+  padding: 10px 0;
+  border: none;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #5e5252, #6c5e5e);
+  color: white;
+  font-family: 'Orbitron', sans-serif;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.2s ease;
+  margin-left: -265px;
+  position: absolute;
+}
+
+.journal-entry button:hover {
+  background: linear-gradient(135deg, #6c5e5e, #847373);
+  transform: scale(1.03);
+}
+
+.journal-entry button:active {
+  background: linear-gradient(135deg, #4e4444, #5e5252);
+  transform: scale(0.97);
+}
+
+.journal-preview {
+  margin-top: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-family: 'Orbitron', sans-serif;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.journal-preview:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.journal-readonly {
+  margin-top: 10px;
+  font-style: italic;
+  color: #ccc;
+  white-space: pre-wrap;
+  line-height: 1.4;
+}
+

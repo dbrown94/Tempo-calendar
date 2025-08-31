@@ -1,0 +1,579 @@
+.time-block-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  backdrop-filter: blur(14px);
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+
+
+.time-block-overlay.hide {
+  display: none;
+}
+
+
+
+
+
+.time-block-modal {
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(24px);
+  border-radius: 16px;
+  padding: 20px;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  color: white;
+  overflow: hidden;
+}
+
+.time-block-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.time-block-content {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+  margin-top: 16px;
+}
+
+.time-column {
+  width: 80px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  font-size: 12px;
+  color: #ddd;
+}
+
+/* Make the left time rows exactly the same height as grid rows */
+.time-column div {
+  height: 40px;
+  padding: 0;                 /* remove the extra 10px */
+  display: flex;              /* center the text vertically without padding */
+  align-items: center;
+  box-sizing: border-box;
+}
+
+/* Remove the extra space that was pushing the grid down */
+.time-block-day-header {
+  margin-bottom: 0;           /* was 10px in your css */
+}
+
+
+.time-block-month-header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: white;
+  margin-bottom: 12px;
+}
+
+.time-block-month-header button {
+  background: rgba(255,255,255,0.1);
+  border: none;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 20px;
+  color: white;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.time-block-month-header button:hover {
+  background: rgba(255,255,255,0.2);
+}
+
+
+
+
+
+.days-wrapper {
+  display: flex;
+  flex: 1;
+  overflow-x: auto;
+}
+
+.day-column {
+  flex: 1;
+  min-width: 140px;
+  border-left: 1px solid rgba(255,255,255,0.05);
+  display: flex;
+  flex-direction: column;
+}
+
+.day-column { position: relative; }
+.day-column .spanning-layer { position:absolute; left:0; right:0; top:40px; height:calc(40px * 24); z-index:1; pointer-events:none; }
+
+
+
+.time-block-day-header {
+  text-align: center;
+  margin-bottom: 0;
+  font-family: 'Orbitron', sans-serif;
+}
+
+.time-block-day-header :hover {
+
+  color: white;
+  background-color: #66BB6A;
+  margin: 0;
+  border-radius: 850px;
+
+}
+
+
+
+.day-name {
+  display: block;
+  font-size: 13px;
+  color: #ddd;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+}
+
+.day-number {
+  display: block;
+  font-size: 22px;
+  color: white;
+  font-weight: bold;
+}
+
+.day-number :hover {
+  color: #FF9800;
+  cursor: pointer;
+}
+
+.time-block {
+  flex: 0 0 40px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.time-block:hover {
+  background: rgba(255,255,255,0.08);
+}
+
+.task, .meeting, .family, .event {
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: white;
+  font-size: 12px;
+  text-align: center;
+}
+
+
+
+.event-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(18px) saturate(160%);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 24px 28px;
+  border-radius: 16px;
+  z-index: 10000;
+  display: none;
+  flex-direction: column;
+  gap: 16px;
+  color: white;
+  font-family: 'Orbitron', sans-serif;
+  box-shadow:
+    0 8px 20px rgba(0, 0, 0, 0.3),
+    inset 0 1px 1px rgba(255, 255, 255, 0.1);
+  width: 440px;
+  
+  
+}
+
+.event-modal input::placeholder,
+.event-modal textarea::placeholder {
+  color: rgba(255, 255, 255, 0.6); /* soft white tint */
+  font-style: italic;              /* optional */
+}
+
+
+.event-modal h3 {
+  font-size: 20px;
+  margin-bottom: 6px;
+  text-align: center;
+}
+
+.event-modal input,
+.event-modal select,
+.event-modal textarea {
+  padding: 10px;
+  border-radius: 10px;
+  border: none;
+  background: rgba(255, 255, 255, 0.12);
+  color: white;
+  font-size: 14px;
+  font-family: 'Orbitron', sans-serif;
+  width: 100%;
+  box-shadow:
+    inset 0 1px 2px rgba(0, 0, 0, 0.15),
+    0 1px 2px rgba(255, 255, 255, 0.1);
+}
+
+.event-modal textarea {
+  resize: vertical;
+  height: 60px;
+}
+
+.time-range {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  align-items: center;
+}
+
+.time-range label {
+  font-size: 12px;
+  color: #ccc;
+  font-weight: bold;
+  width: 40px;
+}
+
+.time-range input {
+  flex: 1;
+}
+
+.alert-toggle label {
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  user-select: none;
+}
+
+
+.event-modal-buttons {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.event-modal-buttons button {
+  flex: 1;
+  padding: 10px 0;
+  border: none;
+  border-radius: 12px;
+  font-family: 'Orbitron', sans-serif;
+  font-weight: bold;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+
+/* Shared gloss effect */
+.event-modal-buttons button::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -50%;
+  width: 200%;
+  height: 100%;
+  background: linear-gradient(
+    120deg,
+    rgba(255, 255, 255, 0.3) 0%,
+    rgba(255, 255, 255, 0.08) 50%,
+    rgba(255, 255, 255, 0.2) 100%
+  );
+  transform: skewX(-20deg);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.event-modal-buttons button:hover::before {
+  opacity: 0.4;
+  animation: shine-gloss 1.2s ease-in-out forwards;
+}
+
+@keyframes shine-gloss {
+  0%   { left: -50%; }
+  100% { left: 100%; }
+}
+
+/* SAVE button */
+.save-btn {
+  background: linear-gradient(135deg, #5e5252, #6c5e5e);
+  color: white;
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.15),
+    0 2px 6px rgba(0, 0, 0, 0.3),
+    0 0 8px rgba(94, 82, 82, 0.4);
+}
+
+.save-btn:hover {
+  background: linear-gradient(135deg, #6c5e5e, #847373);
+  transform: scale(1.04);
+}
+
+.save-btn:active {
+  background: linear-gradient(135deg, #4e4444, #5e5252);
+  transform: scale(0.98);
+}
+
+/* CANCEL button */
+.cancel-btn {
+   background: linear-gradient(135deg, #6c5e5e, #847373);
+  transform: scale(1.04);
+  color: white;
+  
+}
+
+.cancel-btn:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: #aaa;
+  transform: scale(1.03);
+}
+
+.cancel-btn:active {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: #bbb;
+  transform: scale(0.98);
+}
+
+.event-block {
+  position: relative;
+  display: inline-block;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 16px;
+  font-size: 13px;
+  font-weight: bold;
+  font-family: 'Orbitron', sans-serif;
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.2),
+    inset 0 1px 1px rgba(255, 255, 255, 0.05);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  overflow: visible; 
+}
+
+.event-block:hover {
+  transform: scale(1.03);
+}
+
+/* Color Coding */
+.event-block.event {
+  background: linear-gradient(135deg, #4CAF50, #66BB6A); /* Green */
+}
+
+.event-block.task {
+  background: linear-gradient(135deg, #2196F3, #42A5F5); /* Blue */
+}
+
+.event-block.meeting {
+  background: linear-gradient(135deg, #9C27B0, #BA68C8); /* Purple */
+}
+
+.event-block.family {
+  background: linear-gradient(135deg, #FF9800, #FFB74D); /* Orange */
+}
+
+
+#eventType {
+  width: 100%;
+  padding: 10px;
+  font-size: 14px;
+  font-family: 'Orbitron', sans-serif;
+  border: transparent;
+  border-radius: 8px;
+  background-color: #7E6363;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  cursor: pointer;
+  box-shadow: inset 0 1px 1px rgba(0,0,0,0.05), 0 1px 3px rgba(0,0,0,0.1);
+  transition: border-color 0.3s ease;
+}
+
+#eventType:focus {
+  outline: none;
+  border-color: #4CAF50;
+}
+
+.event-block:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  transition: all 0.2s ease;
+  background-color: #2196F3;
+  color: white; /* Reveal text on hover */
+}
+
+
+.custom-tooltip {
+  position: absolute;
+  bottom: 110%;
+  left: 50%;
+  transform: translateX(-50%);
+  min-width: 180px;
+  background: rgba(0, 0, 0, 0.85);
+  color: #fff;
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  text-align: left;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  z-index: 10;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  white-space: normal;
+}
+
+.event-block:hover .custom-tooltip {
+  opacity: 1;
+}
+
+
+.color-popover {
+  background: rgba(30, 30, 30, 0.9);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 10px;
+  padding: 8px;
+  z-index: 99999;
+  box-shadow: 0 10px 24px rgba(0,0,0,0.35), inset 0 1px 1px rgba(255,255,255,0.06);
+  display: inline-flex;
+  flex-direction: column;
+  gap: 6px;
+  color: #fff;
+  font-family: 'Orbitron', sans-serif;
+}
+
+.color-row {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.color-swatch {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.35);
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.3), inset 0 1px 1px rgba(255,255,255,0.2);
+}
+
+.color-swatch:focus-visible { outline: 2px solid #fff; }
+
+.color-input {
+  width: 34px;
+  height: 26px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.color-close {
+  margin-left: auto;
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 8px;
+  padding: 2px 8px;
+  color: #fff;
+  cursor: pointer;
+}
+.color-close:hover { background: rgba(255,255,255,0.2); }
+
+
+/* The inner content that lives inside each positioned block */
+.event-chip {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 8px 10px;
+  color: #fff;
+  font-family: 'Orbitron', sans-serif;
+  overflow-y: auto;                 /* if the block is very short, allow scroll to see all fields */
+  backdrop-filter: saturate(120%);  /* subtle punch */
+}
+
+/* Title + time on one row, space-between */
+.event-chip .chip-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.event-chip .chip-title {
+  font-weight: 800;
+  font-size: 12px;
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.event-chip .chip-time {
+  font-weight: 700;
+  font-size: 11px;
+  opacity: 0.95;
+  white-space: nowrap;
+}
+
+/* Meta row: wraps onto multiple lines if needed */
+.event-chip .chip-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+  margin-bottom: 6px;
+  font-size: 11px;
+  line-height: 1.2;
+}
+
+.event-chip .chip-meta-item {
+  opacity: 0.95;
+  white-space: nowrap;
+}
+
+/* A small pill for the event type */
+.event-chip .chip-pill {
+  background: rgba(0,0,0,0.25);
+  border: 1px solid rgba(255,255,255,0.25);
+  padding: 2px 6px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .3px;
+  white-space: nowrap;
+}
+
+/* Notes area – wrap text, no clamp so the user can scroll to read all of it */
+.event-chip .chip-notes {
+  font-size: 11px;
+  line-height: 1.25;
+  opacity: 0.95;
+  white-space: normal;
+}

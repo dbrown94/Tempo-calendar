@@ -1,0 +1,148 @@
+html, body, #root {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  min-height: 800vh;  /* ensure full viewport height */
+    font-family: 'Orbitron', sans-serif;
+  background-color: #695353;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ====== App Container ====== */
+
+.tempo-app {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+  padding: 40px;
+  box-sizing: border-box;
+  max-width: 1600px;
+  
+  margin: 0 auto;
+}
+
+/* ====== Responsive Breakpoints ====== */
+
+@media (max-width: 1024px) {
+  .tempo-app {
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    padding: 30px;
+  }
+}
+
+@media (max-width: 768px) {
+  .tempo-app {
+    grid-template-columns: 1fr;
+    padding: 20px;
+  }
+}
+
+/* ====== Optional: Card Styling for Each Box ====== */
+
+.card {
+  background-color: #3e2b2b;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+  padding: 20px;
+  transition: transform 0.2s ease;
+}
+
+.card:hover {
+  transform: scale(1.01);
+}
+
+/* ====== You can still keep this if needed ====== */
+.read-the-docs {
+  color: #888;
+}
+
+
+.calendar-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  gap: 0;
+  margin-top: 10px;
+  margin-left: -400px;;
+  position: relative;
+ 
+}
+
+
+.aiiden-trigger-btn {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 1000;
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: 30px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(14px) saturate(180%);
+  -webkit-backdrop-filter: blur(14px) saturate(180%);
+  color: #ffffff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  box-shadow:
+    inset 0 0 0 0.5px rgba(255, 255, 255, 0.25),
+    0 4px 12px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+  transition: all 0.3s ease;
+    font-family: 'Orbitron', sans-serif;
+}
+
+.aiiden-trigger-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  box-shadow:
+    inset 0 0 0 0.5px rgba(255, 255, 255, 0.35),
+    0 6px 16px rgba(0, 0, 0, 0.4);
+  transform: translateY(-1px) scale(1.03);
+}
+
+
+.aiiden-trigger-btn i {
+  font-size: 20px;
+  color: #ffffff;
+  transition: color 0.3s ease, transform 0.3s ease, text-shadow 0.3s ease;
+  text-shadow: 0 0 4px rgba(255, 255, 255, 0.6);
+}
+
+.aiiden-trigger-btn:hover i {
+  color: #00ffc2;
+  transform: scale(1.1);
+  text-shadow: 0 0 6px rgba(0, 255, 194, 0.8), 0 0 10px rgba(0, 255, 194, 0.6);
+}
+
+/* Optional: animated glow when Aiiden is active */
+.aiiden-active i {
+  color: #00ffc2;
+  animation: mic-glow 1.2s infinite ease-in-out;
+}
+
+@keyframes mic-glow {
+  0% {
+    text-shadow: 0 0 5px rgba(0, 255, 194, 0.5);
+  }
+  50% {
+    text-shadow: 0 0 10px rgba(0, 255, 194, 0.9), 0 0 20px rgba(0, 255, 194, 0.6);
+  }
+  100% {
+    text-shadow: 0 0 5px rgba(0, 255, 194, 0.5);
+  }
+}
+
+/* Row that docks the weather card to the right of the calendar */
+.calendar-container {
+  display: flex;
+  justify-content: center;
+  align-items: stretch; /* ensures equal vertical alignment */
+  gap: 0px; /* spacing between calendar and weather */
+}
+
+/* remove the hard margin from the weather card */
+.weather-sidebar {
+  margin-top: 3 !important;
+}
